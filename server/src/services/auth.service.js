@@ -1,17 +1,14 @@
 // Responsibility
-// Is file me business logic rahega.
-
-// Email already hai ya nahi?
-// Password hash karo
-// User create karo
-// JWT generate karo
-// Yahan req aur res ka use nahi hoga.
+// Is file me authentication related business logic rahega.
+// Yahan req aur res ka use nahi hota.
 
 const User = require("../models/user.model");
-
 const bcrypt = require("bcrypt");
-
 const jwt = require("jsonwebtoken");
+
+const {
+    createAuditLog
+} = require("./auditLog.service");
 
 
 // ================= REGISTER USER =================
@@ -39,15 +36,10 @@ const registerUser = async (userData) => {
     const user = await User.create({
 
         fullName,
-
         email,
-
         password: hashedPassword,
-
         phone,
-
         city,
-
         state
 
     });
@@ -70,14 +62,23 @@ const registerUser = async (userData) => {
     const userResponse = {
 
         _id: user._id,
-
         fullName: user.fullName,
-
         email: user.email,
-
         role: user.role
 
     };
+
+    // Record successful registration
+    await createAuditLog({
+        user: user._id,
+        action: "REGISTER",
+        entityType: "USER",
+        entityId: user._id,
+        description: "Created a new account",
+        metadata: {
+            email: user.email
+        }
+    });
 
     return {
         user: userResponse,
@@ -133,14 +134,23 @@ const loginUser = async (userData) => {
     const userResponse = {
 
         _id: user._id,
-
         fullName: user.fullName,
-
         email: user.email,
-
         role: user.role
 
     };
+
+    // Record successful login
+    await createAuditLog({
+        user: user._id,
+        action: "LOGIN",
+        entityType: "USER",
+        entityId: user._id,
+        description: "Logged into the application",
+        metadata: {
+            email: user.email
+        }
+    });
 
     return {
         user: userResponse,
@@ -163,19 +173,12 @@ const getCurrentUser = async (userId) => {
     const userResponse = {
 
         _id: user._id,
-
         fullName: user.fullName,
-
         email: user.email,
-
         phone: user.phone,
-
         city: user.city,
-
         state: user.state,
-
         profileImage: user.profileImage,
-
         role: user.role
 
     };
@@ -222,6 +225,15 @@ const changePassword = async (
 
     await user.save();
 
+    // Record password change
+    await createAuditLog({
+        user: userId,
+        action: "PASSWORD_CHANGED",
+        entityType: "USER",
+        entityId: userId,
+        description: "Changed account password"
+    });
+
     return true;
 };
 
@@ -241,14 +253,12 @@ const updateProfile = async (
         profileImage
     } = profileData;
 
-
     const user =
         await User.findById(userId);
 
     if (!user) {
         throw new Error("User not found");
     }
-
 
     if (fullName !== undefined) {
         user.fullName = fullName;
@@ -270,30 +280,29 @@ const updateProfile = async (
         user.profileImage = profileImage;
     }
 
-
     await user.save();
 
+    // Record profile update
+    await createAuditLog({
+        user: userId,
+        action: "PROFILE_UPDATED",
+        entityType: "USER",
+        entityId: userId,
+        description: "Updated profile information"
+    });
 
     const userResponse = {
 
         _id: user._id,
-
         fullName: user.fullName,
-
         email: user.email,
-
         phone: user.phone,
-
         city: user.city,
-
         state: user.state,
-
         profileImage: user.profileImage,
-
         role: user.role
 
     };
-
 
     return userResponse;
 };
@@ -304,13 +313,9 @@ const updateProfile = async (
 module.exports = {
 
     registerUser,
-
     loginUser,
-
     getCurrentUser,
-
     changePassword,
-
     updateProfile
 
 };

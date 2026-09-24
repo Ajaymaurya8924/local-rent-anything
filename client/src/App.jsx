@@ -18,6 +18,24 @@ import ReceivedBookings from "./pages/ReceivedBookings";
 
 import Notifications from "./pages/Notifications";
 
+import ActivityHistory from "./pages/ActivityHistory";
+import Dashboard from "./pages/Dashboard";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+
+import AdminUsers from "./pages/AdminUsers";
+
+import AdminItems from "./pages/AdminItems";
+
+import AdminBookings from "./pages/AdminBookings";
+
+import AdminPayments from "./pages/AdminPayments";
+
+import AdminReviews from "./pages/AdminReviews";
+
+import AdminAuditLogs from "./pages/AdminAuditLogs";
+
+import AdminProfile from "./pages/AdminProfile";
 
 function App() {
 
@@ -55,6 +73,91 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+
+
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminDashboard />
+                        </AdminProtectedRoute>
+                    }
+                />
+
+
+                <Route
+                    path="/admin/users"
+                    element={
+                        <AdminProtectedRoute>
+                            <AdminUsers />
+                        </AdminProtectedRoute>
+                    }
+                />
+
+
+                <Route
+    path="/admin/items"
+    element={
+        <AdminProtectedRoute>
+            <AdminItems />
+        </AdminProtectedRoute>
+    }
+/>
+
+<Route
+    path="/admin/bookings"
+    element={
+        <AdminProtectedRoute>
+            <AdminBookings />
+        </AdminProtectedRoute>
+    }
+/>
+
+<Route
+    path="/admin/payments"
+    element={
+        <AdminProtectedRoute>
+            <AdminPayments />
+        </AdminProtectedRoute>
+    }
+/>
+
+<Route
+    path="/admin/reviews"
+    element={
+        <AdminProtectedRoute>
+            <AdminReviews />
+        </AdminProtectedRoute>
+    }
+/>
+
+<Route
+    path="/admin/audit-logs"
+    element={
+        <AdminProtectedRoute>
+            <AdminAuditLogs />
+        </AdminProtectedRoute>
+    }
+/>
+
+<Route
+    path="/admin/profile"
+    element={
+        <AdminProtectedRoute>
+            <AdminProfile />
+        </AdminProtectedRoute>
+    }
+/>
 
 
                 <Route
@@ -141,6 +244,15 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Notifications />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/activity"
+                    element={
+                        <ProtectedRoute>
+                            <ActivityHistory />
                         </ProtectedRoute>
                     }
                 />

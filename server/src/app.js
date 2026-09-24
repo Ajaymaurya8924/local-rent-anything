@@ -10,6 +10,12 @@ const paymentRoutes = require("./routes/payment.route");
 const notificationRoutes = require("./routes/notification.route");
 const emailRoutes = require("./routes/email.route");
 const reviewRoutes = require("./routes/review.route");
+
+const auditLogRoutes = require("./routes/auditLog.route");
+
+const adminDashboardRoutes =
+    require("./routes/adminDashboard.route");
+
 const app = express();
 
 // ==========================
@@ -47,5 +53,12 @@ app.use(
 app.use("/api/v1/email", emailRoutes);
 
 app.use("/api/v1/reviews", reviewRoutes);
+
+app.use("/api/v1/audit-logs", auditLogRoutes);
+
+app.use(
+    "/api/v1/admin/dashboard",
+    adminDashboardRoutes
+);
 
 module.exports = app;

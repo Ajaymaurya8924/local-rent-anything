@@ -1,9 +1,13 @@
 import { useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
-import { loginUser } from "../services/authService";
-import { useNavigate } from "react-router-dom";
+
+import {
+    loginUser,
+    getCurrentUser
+} from "../services/authService";
+
 import {
     FaEnvelope,
     FaLock,
@@ -17,6 +21,7 @@ function Login() {
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -30,21 +35,78 @@ function Login() {
         try {
             setLoading(true);
 
-            const response = await loginUser({
+            // ==========================================
+            // LOGIN
+            // ==========================================
+
+            const loginResponse = await loginUser({
                 email,
                 password,
             });
 
-            toast.success(response.message);
+            console.log("LOGIN RESPONSE:", loginResponse);
+
+            // ==========================================
+            // GET ACTUAL CURRENT USER
+            // This gets the role directly from backend
+            // ==========================================
+
+            const currentUserResponse = await getCurrentUser();
+
+            console.log(
+                "CURRENT USER RESPONSE:",
+                currentUserResponse
+            );
+
+            // Your existing authService returns response.data
+            // so normally user will be here:
+            const user =
+                currentUserResponse?.data?.user ||
+                currentUserResponse?.user ||
+                currentUserResponse?.data;
+
+            console.log("LOGGED IN USER:", user);
+            console.log("USER ROLE:", user?.role);
+
+            toast.success(
+                loginResponse?.message ||
+                "Login successful"
+            );
+
+            // ==========================================
+            // ROLE BASED REDIRECTION
+            // ==========================================
 
             setTimeout(() => {
-                navigate("/home");
+
+                if (user?.role === "admin") {
+
+                    console.log(
+                        "Admin detected → Opening Admin Dashboard"
+                    );
+
+                    navigate("/admin/dashboard");
+
+                } else {
+
+                    console.log(
+                        "Normal user detected → Opening Home"
+                    );
+
+                    navigate("/home");
+                }
+
             }, 1000);
 
         } catch (error) {
+
+            console.error("LOGIN ERROR:", error);
+
             toast.error(
-                error?.response?.data?.message || "Login Failed"
+                error?.response?.data?.message ||
+                "Login Failed"
             );
+
         } finally {
             setLoading(false);
         }
@@ -66,8 +128,15 @@ function Login() {
                         Login to your account
                     </p>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-5"
+                    >
+
+                        {/* EMAIL */}
+
                         <div className="relative">
+
                             <FaEnvelope className="absolute left-3 top-4 text-gray-400" />
 
                             <input
@@ -75,45 +144,78 @@ function Login() {
                                 placeholder="Email"
                                 className="w-full border rounded-lg py-3 pl-10 pr-4 focus:ring-2 focus:ring-blue-500 outline-none"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) =>
+                                    setEmail(e.target.value)
+                                }
                             />
+
                         </div>
 
+
+                        {/* PASSWORD */}
+
                         <div className="relative">
+
                             <FaLock className="absolute left-3 top-4 text-gray-400" />
 
                             <input
-                                type={showPassword ? "text" : "password"}
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
                                 placeholder="Password"
                                 className="w-full border rounded-lg py-3 pl-10 pr-10 focus:ring-2 focus:ring-blue-500 outline-none"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setPassword(e.target.value)
+                                }
                             />
 
                             <button
                                 type="button"
                                 className="absolute right-3 top-4"
-                                onClick={() => setShowPassword(!showPassword)}
+                                onClick={() =>
+                                    setShowPassword(
+                                        !showPassword
+                                    )
+                                }
                             >
-                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                {showPassword ? (
+                                    <FaEyeSlash />
+                                ) : (
+                                    <FaEye />
+                                )}
                             </button>
+
                         </div>
+
+
+                        {/* LOGIN BUTTON */}
 
                         <button
                             disabled={loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
                         >
-                            {loading ? "Logging In..." : "Login"}
+                            {loading
+                                ? "Logging In..."
+                                : "Login"}
                         </button>
 
+
+                        {/* REGISTER */}
+
                         <p className="text-center">
+
                             Don't have an account?
+
                             <Link
                                 to="/register"
                                 className="text-blue-600 ml-2 font-semibold hover:underline"
                             >
                                 Register
                             </Link>
+
                         </p>
 
                     </form>

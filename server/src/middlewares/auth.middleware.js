@@ -38,6 +38,27 @@ const verifyToken = async (req, res, next) => {
     }
 };
 
+/*
+ * Allows only admin users to access protected admin routes.
+ */
+const verifyAdmin = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: "Please login first"
+        });
+    }
+
+    if (req.user.role !== "admin") {
+        return res.status(403).json({
+            success: false,
+            message: "Admin access required"
+        });
+    }
+
+    next();
+};
 module.exports = {
-    verifyToken
+    verifyToken,
+    verifyAdmin
 };

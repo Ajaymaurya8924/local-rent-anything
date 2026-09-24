@@ -3,46 +3,52 @@ import api from "../api/axios";
 // ================= REGISTER =================
 
 const registerUser = async (userData) => {
-  try {
-    const response = await api.post("/auth/register", userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const response = await api.post("/auth/register", userData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
 
 // ================= LOGIN =================
 
 const loginUser = async (userData) => {
-  try {
-    const response = await api.post("/auth/login", userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const response = await api.post("/auth/login", userData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
 
 // ================= GET CURRENT USER =================
 
 const getCurrentUser = async () => {
-  try {
-    const response = await api.get("/auth/me");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const response = await api.get("/auth/me");
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
 
 // ================= LOGOUT =================
 
 const logoutUser = async () => {
-  try {
-    const response = await api.post("/auth/logout");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const response = await api.post("/auth/logout");
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
+
+// ================= UPDATE PROFILE =================
 
 const updateProfile = async (profileData) => {
     try {
@@ -52,16 +58,38 @@ const updateProfile = async (profileData) => {
         );
 
         return response.data;
-
     } catch (error) {
         throw error;
     }
 };
 
+
+// ================= CHANGE PASSWORD =================
+
+const changePassword = async (oldPassword, newPassword) => {
+    try {
+        const response = await api.patch(
+            "/auth/change-password",
+            {
+                oldPassword,
+                newPassword
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+// ================= EXPORTS =================
+
 export {
-  registerUser,
-  loginUser,
-  getCurrentUser,
-  logoutUser,
-  updateProfile
+    registerUser,
+    loginUser,
+    getCurrentUser,
+    logoutUser,
+    updateProfile,
+    changePassword
 };

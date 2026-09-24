@@ -281,14 +281,14 @@ function Navbar() {
                           handleNotificationClick(notification)
                         }
                         className={`flex w-full gap-3 border-b border-gray-100 px-4 py-3 text-left transition hover:bg-gray-50 ${!notification.isRead
-                            ? "bg-blue-50/50"
-                            : "bg-white"
+                          ? "bg-blue-50/50"
+                          : "bg-white"
                           }`}
                       >
                         <div
                           className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${notification.isRead
-                              ? "bg-gray-100 text-gray-500"
-                              : "bg-blue-100 text-blue-600"
+                            ? "bg-gray-100 text-gray-500"
+                            : "bg-blue-100 text-blue-600"
                             }`}
                         >
                           <FiBell size={16} />
@@ -447,6 +447,18 @@ function Navbar() {
                 {/* Profile Link */}
                 <div className="p-2">
 
+
+                  <button
+    onClick={() => {
+        setProfileMenu(false);
+        navigate("/dashboard");
+    }}
+    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+>
+    <FiUser size={18} />
+    Dashboard
+</button>
+
                   <button
                     onClick={() => {
                       setProfileMenu(false);
@@ -457,6 +469,24 @@ function Navbar() {
                     <FiUser size={18} />
                     View Profile
                   </button>
+
+                  <button
+                    onClick={() => {
+                      setProfileMenu(false);
+                      navigate("/activity");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  >
+                    <FiUser size={18} />
+                    Activity History
+                  </button>
+
+                  {/* <button
+                    onClick={() => navigate("/activity")}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  >
+                    Activity History
+                  </button> */}
 
                   {/* Logout */}
                   <button

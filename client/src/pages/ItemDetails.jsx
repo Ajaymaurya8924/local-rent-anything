@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import {
+    FiArrowLeft,
+    FiCalendar,
+    FiCheckCircle,
+    FiMapPin,
+    FiStar,
+    FiShield
+} from "react-icons/fi";
 
 import Navbar from "../components/Navbar";
 import { getSingleItem } from "../services/itemService";
@@ -18,23 +26,17 @@ function ItemDetails() {
 
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-
     const [bookingLoading, setBookingLoading] = useState(false);
 
-
-    // ================= REVIEW STATES =================
-
+    // Review states
     const [reviews, setReviews] = useState([]);
     const [averageRating, setAverageRating] = useState(0);
     const [totalReviews, setTotalReviews] = useState(0);
     const [reviewsLoading, setReviewsLoading] = useState(true);
 
-    // ================= TODAY DATE =================
-
     const today = new Date().toISOString().split("T")[0];
 
-    // ================= FETCH ITEM =================
-
+    // Load item and reviews together when item id changes.
     useEffect(() => {
         fetchItem();
         fetchReviews();
@@ -46,16 +48,15 @@ function ItemDetails() {
             setItem(response.data.item);
         } catch (error) {
             console.log(error);
+
             toast.error(
                 error?.response?.data?.message ||
-                "Failed to load item"
+                    "Failed to load item"
             );
         } finally {
             setLoading(false);
         }
     };
-
-    // ================= FETCH REVIEWS =================
 
     const fetchReviews = async () => {
         try {
@@ -73,8 +74,7 @@ function ItemDetails() {
         }
     };
 
-    // ================= DATE CALCULATION =================
-
+    // Calculate rental duration.
     const calculateTotalDays = () => {
         if (!startDate || !endDate) {
             return 0;
@@ -101,8 +101,7 @@ function ItemDetails() {
             ? totalDays * item?.pricePerDay
             : 0;
 
-    // ================= CREATE BOOKING =================
-
+    // Create booking request.
     const handleBooking = async (e) => {
         e.preventDefault();
 
@@ -117,16 +116,12 @@ function ItemDetails() {
         }
 
         if (endDate <= startDate) {
-            toast.error(
-                "End date must be after start date"
-            );
+            toast.error("End date must be after start date");
             return;
         }
 
         if (totalDays < 1) {
-            toast.error(
-                "Booking must be at least 1 day"
-            );
+            toast.error("Booking must be at least 1 day");
             return;
         }
 
@@ -141,368 +136,434 @@ function ItemDetails() {
 
             toast.success(
                 response?.message ||
-                "Booking request sent successfully"
+                    "Booking request sent successfully"
             );
 
             navigate("/my-bookings");
-
         } catch (error) {
             toast.error(
                 error?.response?.data?.message ||
-                "Booking failed"
+                    "Booking failed"
             );
         } finally {
             setBookingLoading(false);
         }
     };
 
-    // ================= LOADING =================
-
     if (loading) {
         return (
-            <>
+            <div className="min-h-screen bg-slate-50">
                 <Navbar />
 
-                <div className="flex min-h-[60vh] items-center justify-center">
+                <div className="flex min-h-[70vh] items-center justify-center">
                     <div className="text-center">
-                        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
-                        <p className="text-gray-500">
+                        <p className="mt-4 text-sm text-slate-500">
                             Loading item...
                         </p>
                     </div>
                 </div>
-            </>
+            </div>
         );
     }
 
-    // ================= ITEM NOT FOUND =================
-
     if (!item) {
         return (
-            <>
+            <div className="min-h-screen bg-slate-50">
                 <Navbar />
 
-                <div className="flex min-h-[60vh] items-center justify-center">
+                <div className="flex min-h-[70vh] items-center justify-center px-4">
                     <div className="text-center">
-                        <h2 className="text-2xl font-bold text-gray-800">
+                        <div className="text-5xl">📦</div>
+
+                        <h2 className="mt-5 text-2xl font-black">
                             Item not found
                         </h2>
 
+                        <p className="mt-2 text-slate-500">
+                            This item may have been removed.
+                        </p>
+
                         <button
                             onClick={() => navigate("/items")}
-                            className="mt-5 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+                            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-blue-600"
                         >
+                            <FiArrowLeft />
                             Back to Explore
                         </button>
                     </div>
                 </div>
-            </>
+            </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-slate-50">
             <Navbar />
 
-            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+            <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
-                {/* ================= ITEM DETAILS ================= */}
+                {/* Back */}
+                <button
+                    onClick={() => navigate("/items")}
+                    className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-600"
+                >
+                    <FiArrowLeft />
+                    Back to Explore
+                </button>
 
-                <div className="grid gap-8 lg:grid-cols-3">
+                {/* ================= MAIN ================= */}
+                <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
 
-                    {/* ITEM INFORMATION */}
+                    {/* ================= ITEM ================= */}
+                    <div>
+                        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
-                    <div className="lg:col-span-2">
-
-                        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-
-                            {/* IMAGE */}
-
-                            <div>
-
-                                {/* MAIN IMAGE */}
-
-                                <div className="flex h-96 items-center justify-center bg-gray-100">
-
-                                    {item.images &&
-                                        item.images.length > 0 ? (
-
-                                        <img
-                                            src={item.images[selectedImage]}
-                                            alt={item.title}
-                                            className="h-full w-full object-contain"
-                                        />
-
-                                    ) : (
-
-                                        <div className="text-center">
-
-                                            <div className="text-5xl">
-                                                📦
-                                            </div>
-
-                                            <p className="mt-2 text-sm text-gray-400">
-                                                No image available
-                                            </p>
-
+                            {/* Main image */}
+                            <div className="flex h-[420px] items-center justify-center bg-slate-100 sm:h-[520px]">
+                                {item.images?.length > 0 ? (
+                                    <img
+                                        src={
+                                            item.images[
+                                                selectedImage
+                                            ]
+                                        }
+                                        alt={item.title}
+                                        className="h-full w-full object-contain"
+                                    />
+                                ) : (
+                                    <div className="text-center">
+                                        <div className="text-6xl">
+                                            📦
                                         </div>
 
-                                    )}
-
-                                </div>
-
-
-                                {/* IMAGE THUMBNAILS */}
-
-                                {item.images &&
-                                    item.images.length > 1 && (
-
-                                        <div className="flex gap-3 overflow-x-auto bg-white p-4">
-
-                                            {item.images.map((image, index) => (
-
-                                                <img
-                                                    key={index}
-                                                    src={image}
-                                                    alt={`${item.title} ${index + 1}`}
-                                                    onClick={() => setSelectedImage(index)}
-                                                    className={`h-20 w-20 flex-shrink-0 cursor-pointer rounded-lg border-2 object-cover ${selectedImage === index
-                                                        ? "border-blue-600"
-                                                        : "border-gray-200"
-                                                        }`}
-                                                />
-
-                                            ))}
-
-                                        </div>
-
-                                    )}
-
+                                        <p className="mt-3 text-sm text-slate-400">
+                                            No image available
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* DETAILS */}
+                            {/* Thumbnails */}
+                            {item.images?.length > 1 && (
+                                <div className="flex gap-3 overflow-x-auto border-t border-slate-100 p-4">
+                                    {item.images.map(
+                                        (image, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() =>
+                                                    setSelectedImage(
+                                                        index
+                                                    )
+                                                }
+                                                className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition ${
+                                                    selectedImage ===
+                                                    index
+                                                        ? "border-blue-600"
+                                                        : "border-transparent"
+                                                }`}
+                                            >
+                                                <img
+                                                    src={image}
+                                                    alt={`${item.title} ${
+                                                        index + 1
+                                                    }`}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+                            )}
 
+                            {/* Item info */}
                             <div className="p-6 sm:p-8">
 
-                                <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-
+                                <div className="flex flex-wrap items-start justify-between gap-4">
                                     <div>
-                                        <p className="mb-2 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                                        <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600">
                                             {item.category}
-                                        </p>
+                                        </span>
 
-                                        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                                        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                                             {item.title}
                                         </h1>
                                     </div>
 
-                                    <div
-                                        className={`rounded-full px-3 py-1 text-sm font-semibold ${item.isAvailable
-                                            ? "bg-green-50 text-green-600"
-                                            : "bg-red-50 text-red-600"
-                                            }`}
+                                    <span
+                                        className={`rounded-full px-4 py-2 text-sm font-bold ${
+                                            item.isAvailable
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-red-100 text-red-700"
+                                        }`}
                                     >
                                         {item.isAvailable
                                             ? "Available"
                                             : "Unavailable"}
-                                    </div>
-
+                                    </span>
                                 </div>
 
-                                <p className="leading-7 text-gray-600">
+                                {/* Rating */}
+                                <div className="mt-5 flex flex-wrap items-center gap-3">
+                                    <div className="flex">
+                                        {Array.from({
+                                            length: 5
+                                        }).map((_, index) => (
+                                            <FiStar
+                                                key={index}
+                                                size={19}
+                                                className={
+                                                    index <
+                                                    Math.round(
+                                                        averageRating
+                                                    )
+                                                        ? "text-yellow-400"
+                                                        : "text-slate-300"
+                                                }
+                                                fill={
+                                                    index <
+                                                    Math.round(
+                                                        averageRating
+                                                    )
+                                                        ? "currentColor"
+                                                        : "none"
+                                                }
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <span className="font-bold text-slate-800">
+                                        {averageRating.toFixed(1)}
+                                    </span>
+
+                                    <span className="text-sm text-slate-500">
+                                        {totalReviews}{" "}
+                                        {totalReviews === 1
+                                            ? "review"
+                                            : "reviews"}
+                                    </span>
+                                </div>
+
+                                <p className="mt-6 leading-7 text-slate-600">
                                     {item.description}
                                 </p>
 
-                                {/* PRICE */}
-
+                                {/* Price cards */}
                                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
-
-                                    <div className="rounded-xl bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">
+                                    <div className="rounded-2xl bg-slate-50 p-5">
+                                        <p className="text-sm text-slate-500">
                                             Rental Price
                                         </p>
 
-                                        <p className="mt-1 text-2xl font-bold text-gray-900">
+                                        <p className="mt-1 text-2xl font-black">
                                             ₹{item.pricePerDay}
-                                            <span className="text-sm font-medium text-gray-500">
-                                                {" "} / day
+                                            <span className="text-sm font-medium text-slate-500">
+                                                {" "}
+                                                / day
                                             </span>
                                         </p>
                                     </div>
 
-                                    <div className="rounded-xl bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">
+                                    <div className="rounded-2xl bg-slate-50 p-5">
+                                        <p className="text-sm text-slate-500">
                                             Security Deposit
                                         </p>
 
-                                        <p className="mt-1 text-2xl font-bold text-gray-900">
+                                        <p className="mt-1 text-2xl font-black">
                                             ₹{item.securityDeposit}
                                         </p>
                                     </div>
-
                                 </div>
 
-                                {/* LOCATION */}
+                                {/* Location */}
+                                <div className="mt-7 flex items-start gap-3 border-t border-slate-100 pt-6">
+                                    <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+                                        <FiMapPin size={20} />
+                                    </div>
 
-                                <div className="mt-6 border-t border-gray-100 pt-6">
+                                    <div>
+                                        <p className="text-sm font-bold">
+                                            Item Location
+                                        </p>
 
-                                    <p className="mb-3 text-sm font-semibold text-gray-700">
-                                        Location
-                                    </p>
-
-                                    <p className="text-gray-600">
-                                        📍 {item.city}, {item.state}
-                                    </p>
-
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            {item.city},{" "}
+                                            {item.state}
+                                        </p>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
                     {/* ================= BOOKING CARD ================= */}
-
                     <div>
-
                         {item.isAvailable ? (
-                            <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <div className="sticky top-24 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
 
-                                <h2 className="text-xl font-bold text-gray-900">
-                                    Book This Item
-                                </h2>
+                                <div className="border-b border-slate-100 p-6">
+                                    <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+                                        Reserve this item
+                                    </p>
 
-                                <p className="mt-1 text-sm text-gray-500">
-                                    Select your rental dates
-                                </p>
+                                    <h2 className="mt-1 text-2xl font-black">
+                                        Book Now
+                                    </h2>
+
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        Select your rental dates.
+                                    </p>
+                                </div>
 
                                 <form
                                     onSubmit={handleBooking}
-                                    className="mt-6 space-y-5"
+                                    className="space-y-5 p-6"
                                 >
-
-                                    {/* START DATE */}
-
+                                    {/* Start */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                        <label className="mb-2 block text-sm font-bold">
                                             Start Date
                                         </label>
 
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            min={today}
-                                            onChange={(e) => {
-                                                setStartDate(
-                                                    e.target.value
-                                                );
+                                        <div className="relative">
+                                            <FiCalendar
+                                                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                                size={18}
+                                            />
 
-                                                if (
-                                                    endDate &&
-                                                    e.target.value >= endDate
-                                                ) {
-                                                    setEndDate("");
-                                                }
-                                            }}
-                                            className="w-full rounded-xl border border-gray-300 bg-white p-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                        />
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                min={today}
+                                                onChange={(e) => {
+                                                    setStartDate(
+                                                        e.target.value
+                                                    );
+
+                                                    if (
+                                                        endDate &&
+                                                        e.target
+                                                            .value >=
+                                                            endDate
+                                                    ) {
+                                                        setEndDate(
+                                                            ""
+                                                        );
+                                                    }
+                                                }}
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* END DATE */}
-
+                                    {/* End */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                        <label className="mb-2 block text-sm font-bold">
                                             End Date
                                         </label>
 
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            min={
-                                                startDate
-                                                    ? startDate
-                                                    : today
-                                            }
-                                            onChange={(e) =>
-                                                setEndDate(
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full rounded-xl border border-gray-300 bg-white p-3 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                        />
+                                        <div className="relative">
+                                            <FiCalendar
+                                                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                                size={18}
+                                            />
+
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                min={
+                                                    startDate ||
+                                                    today
+                                                }
+                                                onChange={(e) =>
+                                                    setEndDate(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* BOOKING SUMMARY */}
-
+                                    {/* Summary */}
                                     {totalDays > 0 && (
-                                        <div className="rounded-xl bg-blue-50 p-4">
-
-                                            <div className="flex justify-between text-sm text-gray-600">
+                                        <div className="rounded-2xl bg-blue-50 p-5">
+                                            <div className="flex justify-between text-sm text-slate-600">
                                                 <span>
-                                                    ₹{item.pricePerDay} ×{" "}
-                                                    {totalDays} day
-                                                    {totalDays > 1
+                                                    ₹
+                                                    {
+                                                        item.pricePerDay
+                                                    }{" "}
+                                                    × {totalDays}{" "}
+                                                    day
+                                                    {totalDays >
+                                                    1
                                                         ? "s"
                                                         : ""}
                                                 </span>
 
-                                                <span className="font-semibold text-gray-800">
+                                                <span className="font-bold">
                                                     ₹{totalAmount}
                                                 </span>
                                             </div>
 
-                                            <div className="my-3 border-t border-blue-100"></div>
+                                            <div className="my-4 border-t border-blue-100" />
 
                                             <div className="flex justify-between">
-                                                <span className="font-semibold text-gray-800">
+                                                <span className="font-bold">
                                                     Total Rent
                                                 </span>
 
-                                                <span className="text-xl font-bold text-blue-600">
+                                                <span className="text-xl font-black text-blue-600">
                                                     ₹{totalAmount}
                                                 </span>
                                             </div>
 
-                                            <p className="mt-2 text-xs text-gray-500">
+                                            <p className="mt-3 text-xs text-slate-500">
                                                 Security deposit:
-                                                {" "}₹{item.securityDeposit}
+                                                {" "}
+                                                ₹
+                                                {
+                                                    item.securityDeposit
+                                                }
                                             </p>
-
                                         </div>
                                     )}
-
-                                    {/* BOOK BUTTON */}
 
                                     <button
                                         type="submit"
                                         disabled={bookingLoading}
-                                        className="w-full rounded-xl bg-blue-600 py-3.5 font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {bookingLoading
                                             ? "Sending Request..."
-                                            : "Book Now"}
+                                            : "Request to Book"}
                                     </button>
 
+                                    <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">
+                                        <FiShield
+                                            className="mt-0.5 flex-shrink-0 text-green-600"
+                                            size={18}
+                                        />
+
+                                        <p className="text-xs leading-5 text-slate-500">
+                                            Your booking remains pending
+                                            until the owner accepts your
+                                            request.
+                                        </p>
+                                    </div>
                                 </form>
-
-                                <p className="mt-4 text-center text-xs text-gray-400">
-                                    Your booking will remain pending until
-                                    the owner accepts it.
-                                </p>
-
                             </div>
                         ) : (
-                            <div className="rounded-2xl border border-red-100 bg-white p-6 text-center shadow-sm">
+                            <div className="rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
+                                <div className="text-5xl">🔒</div>
 
-                                <div className="text-4xl">
-                                    🔒
-                                </div>
-
-                                <h2 className="mt-3 text-xl font-bold text-gray-900">
+                                <h2 className="mt-4 text-xl font-black">
                                     Item Unavailable
                                 </h2>
 
-                                <p className="mt-2 text-sm text-gray-500">
+                                <p className="mt-2 text-sm text-slate-500">
                                     This item is currently not available
                                     for booking.
                                 </p>
@@ -511,156 +572,191 @@ function ItemDetails() {
                                     onClick={() =>
                                         navigate("/items")
                                     }
-                                    className="mt-5 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800"
+                                    className="mt-6 rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-blue-600"
                                 >
                                     Explore Other Items
                                 </button>
-
                             </div>
                         )}
-
                     </div>
                 </div>
 
-            </main>
+                {/* ================= REVIEWS ================= */}
+                <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
-            {/* ================= REVIEWS SECTION ================= */}
+                    <div className="flex flex-col gap-6 border-b border-slate-100 pb-7 sm:flex-row sm:items-center sm:justify-between">
 
-            <section className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-
-                {/* Reviews Header */}
-                <div className="flex flex-col gap-4 border-b border-gray-100 pb-6 sm:flex-row sm:items-center sm:justify-between">
-
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            Reviews & Ratings
-                        </h2>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            See what other renters experienced with this item.
-                        </p>
-                    </div>
-
-                    {/* Rating Summary */}
-                    <div className="flex items-center gap-3">
-                        <div className="text-center">
-                            <p className="text-3xl font-bold text-gray-900">
-                                {averageRating.toFixed(1)}
+                        <div>
+                            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+                                Community feedback
                             </p>
 
-                            <div className="text-lg text-yellow-400">
-                                {"★".repeat(Math.round(averageRating))}
-                                <span className="text-gray-300">
-                                    {"★".repeat(
-                                        5 - Math.round(averageRating)
-                                    )}
-                                </span>
-                            </div>
-                        </div>
+                            <h2 className="mt-1 text-2xl font-black">
+                                Reviews & Ratings
+                            </h2>
 
-                        <div className="border-l border-gray-200 pl-4">
-                            <p className="text-sm font-semibold text-gray-700">
-                                {totalReviews}{" "}
-                                {totalReviews === 1
-                                    ? "Review"
-                                    : "Reviews"}
+                            <p className="mt-1 text-sm text-slate-500">
+                                See what other renters experienced.
                             </p>
                         </div>
-                    </div>
-                </div>
 
-                {/* Reviews Content */}
-                {reviewsLoading ? (
-                    <div className="py-10 text-center">
-                        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                        <div className="flex items-center gap-4">
+                            <div className="text-center">
+                                <p className="text-3xl font-black">
+                                    {averageRating.toFixed(1)}
+                                </p>
 
-                        <p className="mt-3 text-sm text-gray-500">
-                            Loading reviews...
-                        </p>
-                    </div>
-                ) : reviews.length === 0 ? (
-                    <div className="py-10 text-center">
-                        <div className="text-4xl">⭐</div>
-
-                        <h3 className="mt-3 text-lg font-semibold text-gray-800">
-                            No reviews yet
-                        </h3>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            Be the first person to review this item.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="divide-y divide-gray-100">
-
-                        {reviews.map((review) => (
-                            <div
-                                key={review._id}
-                                className="py-6 first:pt-6"
-                            >
-
-                                {/* Reviewer Info */}
-                                <div className="flex items-start justify-between gap-4">
-
-                                    <div className="flex items-center gap-3">
-
-                                        {/* Reviewer Avatar */}
-                                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-blue-100 font-bold text-blue-600">
-                                            {review.renter?.profileImage ? (
-                                                <img
-                                                    src={review.renter.profileImage}
-                                                    alt={
-                                                        review.renter.fullName ||
-                                                        "Reviewer"
-                                                    }
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                review.renter?.fullName
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() || "U"
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <p className="font-semibold text-gray-900">
-                                                {review.renter?.fullName ||
-                                                    "Anonymous User"}
-                                            </p>
-
-                                            <p className="text-xs text-gray-400">
-                                                {new Date(
-                                                    review.createdAt
-                                                ).toLocaleDateString(
-                                                    "en-IN"
-                                                )}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Star Rating */}
-                                    <div className="text-lg text-yellow-400">
-                                        {"★".repeat(review.rating)}
-                                        <span className="text-gray-300">
-                                            {"★".repeat(
-                                                5 - review.rating
-                                            )}
-                                        </span>
-                                    </div>
+                                <div className="mt-1 flex">
+                                    {Array.from({
+                                        length: 5
+                                    }).map((_, index) => (
+                                        <FiStar
+                                            key={index}
+                                            size={17}
+                                            className={
+                                                index <
+                                                Math.round(
+                                                    averageRating
+                                                )
+                                                    ? "text-yellow-400"
+                                                    : "text-slate-300"
+                                            }
+                                            fill={
+                                                index <
+                                                Math.round(
+                                                    averageRating
+                                                )
+                                                    ? "currentColor"
+                                                    : "none"
+                                            }
+                                        />
+                                    ))}
                                 </div>
-
-                                {/* Review Comment */}
-                                {review.comment && (
-                                    <p className="mt-4 leading-6 text-gray-600">
-                                        {review.comment}
-                                    </p>
-                                )}
                             </div>
-                        ))}
-                    </div>
-                )}
-            </section>
 
+                            <div className="border-l border-slate-200 pl-4">
+                                <p className="text-sm font-bold">
+                                    {totalReviews}
+                                </p>
+
+                                <p className="text-xs text-slate-500">
+                                    {totalReviews === 1
+                                        ? "Review"
+                                        : "Reviews"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {reviewsLoading ? (
+                        <div className="py-12 text-center">
+                            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+
+                            <p className="mt-3 text-sm text-slate-500">
+                                Loading reviews...
+                            </p>
+                        </div>
+                    ) : reviews.length === 0 ? (
+                        <div className="py-14 text-center">
+                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-50 text-3xl">
+                                ⭐
+                            </div>
+
+                            <h3 className="mt-4 font-bold">
+                                No reviews yet
+                            </h3>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                                Be the first person to review this item.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {reviews.map((review) => (
+                                <div
+                                    key={review._id}
+                                    className="py-6"
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 font-bold text-blue-600">
+                                                {review.renter
+                                                    ?.profileImage ? (
+                                                    <img
+                                                        src={
+                                                            review
+                                                                .renter
+                                                                .profileImage
+                                                        }
+                                                        alt={
+                                                            review
+                                                                .renter
+                                                                .fullName ||
+                                                            "Reviewer"
+                                                        }
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    review.renter?.fullName
+                                                        ?.charAt(0)
+                                                        ?.toUpperCase() ||
+                                                    "U"
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <p className="font-bold">
+                                                    {review.renter
+                                                        ?.fullName ||
+                                                        "Anonymous User"}
+                                                </p>
+
+                                                <p className="text-xs text-slate-400">
+                                                    {new Date(
+                                                        review.createdAt
+                                                    ).toLocaleDateString(
+                                                        "en-IN"
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex">
+                                            {Array.from({
+                                                length: 5
+                                            }).map((_, index) => (
+                                                <FiStar
+                                                    key={index}
+                                                    size={16}
+                                                    className={
+                                                        index <
+                                                        review.rating
+                                                            ? "text-yellow-400"
+                                                            : "text-slate-300"
+                                                    }
+                                                    fill={
+                                                        index <
+                                                        review.rating
+                                                            ? "currentColor"
+                                                            : "none"
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {review.comment && (
+                                        <p className="mt-4 pl-14 text-sm leading-6 text-slate-600">
+                                            {review.comment}
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </main>
         </div>
     );
 }
